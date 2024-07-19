@@ -26,6 +26,7 @@
     pointCloutFrameId: base_scan
     qos_overrides./parameter_events.publisher.depth: 1000
     qos_overrides./parameter_events.publisher.reliability: best_effort #best_effort
+    qos_overrides./parameter_events.publisher.history: keep_last
     scanTopic1: /scan_front
     scanTopic2: /scan_back
     show1: true
@@ -45,6 +46,7 @@
         publisher:
           depth: 1000
           reliability: best_effort
+          history: keep_last
     queue_size: 16
     range_max: 10.0
     range_min: 0.35
