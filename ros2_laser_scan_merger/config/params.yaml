@@ -48,9 +48,9 @@
           reliability: best_effort
           history: keep_last
     queue_size: 16
-    range_max: 20.0
+    range_max: 30.0
     range_min: 0.35
-    scan_time: 0.05
+    scan_time: 0.01
     target_frame: base_scan
     transform_tolerance: 0.01
     use_inf: true
