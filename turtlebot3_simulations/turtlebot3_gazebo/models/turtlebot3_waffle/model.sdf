@@ -514,6 +514,84 @@
       </collision>
     </link>
 
+    <link name='ultrasonic_front_link'>
+      <collision name="ultrasonic_front_collision">
+        <pose>0.064 0 0.094 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_front_visual">
+        <pose>0.064 0 0.094 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name='ultrasonic_left_link'>
+      <collision name="ultrasonic_left_collision">
+        <pose>0.064 0.135 0.094 0 0 0.785</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_left_visual">
+        <pose>0.064 0.135 0.094 0 0 0.785</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name='ultrasonic_right_link'>
+      <collision name="ultrasonic_right_collision">
+        <pose>0.064 -0.135 0.094 0 0 -0.785</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_right_visual">
+        <pose>0.064 -0.135 0.094 0 0 -0.785</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <joint name="ultrasonic_front_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_front_link</child>
+      <pose>0.064 0 0.094 0 0 0</pose>
+    </joint>
+
+    <joint name="ultrasonic_left_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_left_link</child>
+      <pose>0.064 0.135 0.094 0 0 0.785</pose>
+    </joint>
+
+    <joint name="ultrasonic_right_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_right_link</child>
+      <pose>0.064 -0.135 0.094 0 0 -0.785</pose>
+    </joint>
+
     <link name="camera_link"/>
 
     <link name="camera_rgb_frame">

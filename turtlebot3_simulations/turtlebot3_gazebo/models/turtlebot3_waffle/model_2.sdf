@@ -1,0 +1,444 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="turtlebot3_waffle">  
+  <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+      <collision name="base_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.15</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="base_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.15</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link> 
+
+    <link name="base_scan">   
+      <collision name="lidar_sensor_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0176</radius>
+            <length>0.0344</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link> 
+
+    <link name="base_scan_front">    
+        <collision name="lidar_sensor_collision_front">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.0176</radius>
+                    <length>0.0344</length>
+                </cylinder>
+            </geometry>
+        </collision>
+
+        <visual name="lidar_sensor_visual_front">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.0176</radius>
+                <length>0.0344</length>
+              </cylinder>
+            </geometry>
+        </visual>
+
+        <sensor name="hls_lfcd_lds_front" type="ray">
+            <always_on>true</always_on>
+            <visualize>flase</visualize>
+            <pose>0 0 0 0 0 0</pose>
+            <update_rate>5</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <resolution>1.000000</resolution>
+                        <min_angle>0.000000</min_angle>
+                        <max_angle>6.280000</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.120000</min>
+                    <max>10.0</max>
+                    <resolution>0.015000</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+            </ray>
+            <plugin name="turtlebot3_laserscan_front" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <remapping>~/out:=scan_front</remapping>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>base_scan_front</frame_name>
+            </plugin>
+        </sensor>
+    </link>
+
+    <link name="base_scan_back">
+        <collision name="lidar_sensor_collision_back">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.0176</radius>
+                    <length>0.0344</length>
+                </cylinder>
+            </geometry>
+        </collision>
+
+        <visual name="lidar_sensor_visual_back">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.0176</radius>
+                <length>0.0344</length>
+            </cylinder>
+            </geometry>
+        </visual>
+
+        <sensor name="hls_lfcd_lds_back" type="ray">
+            <always_on>true</always_on>
+            <visualize>false</visualize>
+            <pose>0 0 0 0 0 0</pose>
+            <update_rate>5</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <resolution>1.000000</resolution>
+                        <min_angle>0.000000</min_angle>
+                        <max_angle>6.280000</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.120000</min>
+                    <max>10.0</max>
+                    <resolution>0.015000</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+            </ray>
+            <plugin name="turtlebot3_laserscan_back" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <remapping>~/out:=scan_back</remapping>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>base_scan_back</frame_name>
+            </plugin>
+        </sensor>
+    </link>
+
+    <link name="wheel_left_link">
+      <collision name="wheel_left_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <!-- This friction pamareter don't contain reliable data!! -->
+          <friction>
+            <ode>
+              <mu>100000.0</mu>
+              <mu2>100000.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <visual name="wheel_left_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name="wheel_right_link">
+      <collision name="wheel_right_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <!-- This friction pamareter don't contain reliable data!! -->
+          <friction>
+            <ode>
+              <mu>100000.0</mu>
+              <mu2>100000.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <visual name="wheel_right_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name='caster_back_link'>
+      <pose>0 0 0 0 0 0</pose>
+      <collision name='collision'>
+        <geometry>
+          <box>
+            <size>0.03 0.042 0.02</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+    </link>
+
+    <link name='ultrasonic_front_link'>
+      <collision name="ultrasonic_front_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_front_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name='ultrasonic_left_link'>
+      <collision name="ultrasonic_left_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_left_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <link name='ultrasonic_right_link'>
+      <collision name="ultrasonic_right_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="ultrasonic_right_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.03 0.06 0.02</size> 
+          </box>
+        </geometry>
+      </visual>
+    </link>
+
+    <joint name="ultrasonic_front_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_front_link</child>
+      <pose>0.135 0 0.06 0 0 0</pose>
+    </joint>
+
+    <joint name="ultrasonic_left_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_left_link</child>
+      <pose>0.10606 0.10606 0.06 0 0 0.785</pose>
+    </joint>
+
+    <joint name="ultrasonic_right_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>ultrasonic_right_link</child>
+      <pose>0.10606 -0.10606 0.06 0 0 -0.785</pose>
+    </joint>
+
+    <joint name="base_joint" type="fixed">
+      <parent>base_footprint</parent>
+      <child>base_link</child>
+      <pose>0 0 0.01 0 0 0</pose>
+    </joint>
+
+    <joint name="wheel_left_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_left_link</child>
+      <pose>0.04 0.17 -0.05 -1.57 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="wheel_right_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_right_link</child>
+      <pose>0.04 -0.17 -0.05 -1.57 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name='caster_back_joint' type='fixed'>
+      <parent>base_link</parent>
+      <child>caster_back_link</child>
+      <pose>-0.135 0 -0.075 -1.57 0 0</pose>
+    </joint> 
+
+    <joint name="lidar_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>base_scan</child>
+      <pose>0 0 0.06722 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="lidar_front_joint" type="fixed">
+      <parent>base_scan</parent>
+      <child>base_scan_front</child>
+      <pose> 0.1024 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="lidar_back_joint" type="fixed">
+      <parent>base_scan</parent>
+      <child>base_scan_back</child>
+      <pose>-0.1024 0 0 0 0 3.14</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <plugin name="turtlebot3_diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+      <ros>
+        <!-- <namespace>/tb3</namespace> -->
+      </ros>
+
+      <update_rate>30</update_rate>
+
+      <!-- wheels -->
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+
+      <!-- kinematics -->
+      <wheel_separation>0.287</wheel_separation>
+      <wheel_diameter>0.066</wheel_diameter>
+
+      <!-- limits -->
+      <max_wheel_torque>20</max_wheel_torque>
+      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+      <command_topic>cmd_vel</command_topic>
+
+      <!-- output -->
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+
+    </plugin>
+
+    <plugin name="turtlebot3_joint_state" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <!-- <namespace>/tb3</namespace> -->
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <update_rate>30</update_rate>
+      <joint_name>wheel_left_joint</joint_name>
+      <joint_name>wheel_right_joint</joint_name>
+    </plugin>    
+
+  </model>
+</sdf>
