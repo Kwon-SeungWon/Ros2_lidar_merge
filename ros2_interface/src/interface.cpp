@@ -3,15 +3,15 @@
 #include <thread>
 #include <atomic>
 
-class HelloWorldNode : public rclcpp::Node {
+class CInterFace : public rclcpp::Node {
 public:
-    HelloWorldNode() : Node("hello_world_node"), stop_thread_(false) {
+    CInterFace() : Node("CInterFace_node"), stop_thread_(false) {
         input_thread_ = std::thread([this]() { this->input_loop(); });
         timer_ = this->create_wall_timer(
             std::chrono::milliseconds(100), std::bind(&HelloWorldNode::check_input, this));
     }
 
-    ~HelloWorldNode() {
+    ~CInterFace() {
         stop_thread_ = true;
         if (input_thread_.joinable()) {
             input_thread_.join();
@@ -19,7 +19,7 @@ public:
     }
 
 private:
-    void input_loop() {
+    void inputLoop() {
         while (!stop_thread_) {
             int user_input;
             if (std::cin >> user_input) {
@@ -49,7 +49,7 @@ private:
         }
     }
 
-    void shutdown_other_nodes() {
+    void shutdownOtherNodes() {
         std::array<char, 128> buffer;
         std::string result;
         std::shared_ptr<FILE> pipe(popen("ros2 node list", "r"), pclose);
@@ -75,54 +75,51 @@ private:
         }
     }
 
-    void open_new_terminal(const std::string& command) 
+    void openNewTerminal(const std::string& command) 
     {
       std::string terminal_command = "xterm -hold -e \"" + command + "\" &";
       system(terminal_command.c_str());
     }
     void teleop()
     {
-      open_new_terminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
+      openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch turtlebot3_teleop teleop.launch.py");
+      openNewTerminal("ros2 launch turtlebot3_teleop teleop.launch.py");
     }
 
     void slam()
     {
-      open_new_terminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
+      openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
     }
 
     void navigation()
     {
-      open_new_terminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True");
+      openNewTerminal("ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True");
     }
 
     void autoslam()
     {
-      open_new_terminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch nav2_bringup slam_launch.py");
+      openNewTerminal("ros2 launch nav2_bringup slam_launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch nav2_bringup navigation_launch.py");
+      openNewTerminal("ros2 launch nav2_bringup navigation_launch.py");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      open_new_terminal("ros2 launch explore_ros2 explore_demo.py");
-    }
-    void check_input() {
-        // 다른 로직이 있다면 여기서 처리
+      openNewTerminal("ros2 launch explore_ros2 explore_demo.py");
     }
 
     rclcpp::TimerBase::SharedPtr timer_;
