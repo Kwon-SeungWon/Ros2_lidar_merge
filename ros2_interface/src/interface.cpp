@@ -6,9 +6,8 @@
 class CInterFace : public rclcpp::Node {
 public:
     CInterFace() : Node("CInterFace_node"), stop_thread_(false) {
-        input_thread_ = std::thread([this]() { this->inputLoop(); });
         timer_ = this->create_wall_timer(
-            std::chrono::milliseconds(100), std::bind(&HelloWorldNode::check_input, this));
+            std::chrono::milliseconds(100), std::bind(&CInterFace::inputLoop, this));
     }
 
     ~CInterFace() {
@@ -129,7 +128,7 @@ private:
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<HelloWorldNode>();
+    auto node = std::make_shared<CInterFace>();
 
     rclcpp::spin(node);
 
