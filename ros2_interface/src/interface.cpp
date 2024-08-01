@@ -6,7 +6,7 @@
 class CInterFace : public rclcpp::Node {
 public:
     CInterFace() : Node("CInterFace_node"), stop_thread_(false) {
-        input_thread_ = std::thread([this]() { this->input_loop(); });
+        input_thread_ = std::thread([this]() { this->inputLoop(); });
         timer_ = this->create_wall_timer(
             std::chrono::milliseconds(100), std::bind(&HelloWorldNode::check_input, this));
     }
@@ -26,7 +26,7 @@ private:
                 switch (user_input) {
                     case 0:
                         system("echo 'Command for 0 executed'");
-                        shutdown_other_nodes();
+                        shutdownOtherNodes();
                         break;
                     case 1: //teleop
                         teleop();
