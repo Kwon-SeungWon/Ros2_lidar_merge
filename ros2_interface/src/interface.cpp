@@ -2,6 +2,13 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
+#include <vector>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <stdexcept>
+#include <cstring>
 
 class CInterFace : public rclcpp::Node {
 public:
@@ -15,6 +22,7 @@ public:
         if (input_thread_.joinable()) {
             input_thread_.join();
         }
+        killAllProcesses();
     }
 
 private:
@@ -25,18 +33,18 @@ private:
                 switch (user_input) {
                     case 0:
                         system("echo 'Command for 0 executed'");
-                        shutdownOtherNodes();
+                        killAllProcesses();
                         break;
-                    case 1: //teleop
+                    case 1: // teleop
                         teleop();
                         break;
-                    case 2: //slam
+                    case 2: // slam
                         slam();
                         break;
-                    case 3: //navigation
+                    case 3: // navigation
                         navigation();
                         break;
-                    case 4: //autoslam
+                    case 4: // autoslam
                         autoslam();
                         break;
                     default:
@@ -48,82 +56,72 @@ private:
         }
     }
 
-    void shutdownOtherNodes() {
-        std::array<char, 128> buffer;
-        std::string result;
-        std::shared_ptr<FILE> pipe(popen("ros2 node list", "r"), pclose);
-        if (!pipe) throw std::runtime_error("popen() failed!");
-
-        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-            result += buffer.data();
+    void openNewTerminal(const std::string& command) {
+        pid_t pid = fork();
+        if (pid == 0) { // 자식 프로세스
+            // 자식 프로세스가 xterm을 열어 명령어를 실행합니다.
+            execlp("xterm", "xterm", "-hold", "-e", command.c_str(), (char*)NULL);
+            std::cerr << "execlp failed: " << strerror(errno) << std::endl;
+            _exit(EXIT_FAILURE); // execlp가 실패하면 자식 프로세스는 종료
+        } else if (pid > 0) { // 부모 프로세스
+            // 부모 프로세스는 자식 프로세스의 PID를 저장합니다.
+            pids_.push_back(pid);
+        } else {
+            throw std::runtime_error("fork() failed!");
         }
+    }
 
-        std::istringstream stream(result);
-        std::string node_name;
-        std::vector<std::string> nodes;
+    void teleop() {
+        openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch turtlebot3_teleop teleop.launch.py");
+    }
 
-        while (std::getline(stream, node_name)) {
-            nodes.push_back(node_name);
-        }
+    void slam() {
+        openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
+    }
 
-        for (const auto& node : nodes) {
-            if (node != this->get_name()) {
-                std::string command = "ros2 node kill " + node;
-                system(command.c_str());
+    void navigation() {
+        openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True");
+    }
+
+    void autoslam() {
+        openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch nav2_bringup slam_launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch nav2_bringup navigation_launch.py");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        openNewTerminal("ros2 launch explore_ros2 explore_demo.py");
+    }
+
+    void killAllProcesses() {
+        for (pid_t pid : pids_) {
+            if (kill(pid, SIGTERM) == -1) {
+                std::cerr << "Failed to kill process " << pid << ": " << strerror(errno) << std::endl;
             }
         }
-    }
-
-    void openNewTerminal(const std::string& command) 
-    {
-      std::string terminal_command = "xterm -hold -e \"" + command + "\" &";
-      system(terminal_command.c_str());
-    }
-    void teleop()
-    {
-      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch turtlebot3_teleop teleop.launch.py");
-    }
-
-    void slam()
-    {
-      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True");
-    }
-
-    void navigation()
-    {
-      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True");
-    }
-
-    void autoslam()
-    {
-      openNewTerminal("ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch ros2_laser_scan_merger merge_2_scan.launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch nav2_bringup slam_launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch nav2_bringup navigation_launch.py");
-      std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      openNewTerminal("ros2 launch explore_ros2 explore_demo.py");
+        pids_.clear();
     }
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::thread input_thread_;
     std::atomic<bool> stop_thread_;
+    std::vector<pid_t> pids_;
 };
 
 int main(int argc, char *argv[]) {
