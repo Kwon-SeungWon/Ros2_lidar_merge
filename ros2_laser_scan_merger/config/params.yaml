@@ -46,7 +46,7 @@
           depth: 1000
           reliability: best_effort
     queue_size: 16
-    range_max: 10.0
+    range_max: 200.0
     range_min: 0.35
     scan_time: 0.1
     target_frame: base_scan
