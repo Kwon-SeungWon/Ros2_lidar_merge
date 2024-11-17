@@ -41,7 +41,7 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory('turtlebot3_fake_node'), 'launch'))
 
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     urdf_file_name = 'turtlebot3_' + TURTLEBOT3_MODEL + '.urdf'
 
     urdf = os.path.join(
@@ -57,8 +57,8 @@ def generate_launch_description():
             default_value=param_dir,
             description='Specifying parameter direction'),
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([rviz_dir, '/rviz2.launch.py'])),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource([rviz_dir, '/rviz2.launch.py'])),
 
         Node(
             package='turtlebot3_fake_node',

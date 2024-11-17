@@ -479,7 +479,7 @@
         <!-- <namespace>/tb3</namespace> -->
       </ros>
 
-      <update_rate>30</update_rate>
+      <update_rate>60</update_rate>
 
       <!-- wheels -->
       <left_joint>wheel_left_joint</left_joint>
