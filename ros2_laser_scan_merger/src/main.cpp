@@ -1,9 +1,3 @@
-//
-//   created by: Michael Jonathan (mich1342)
-//   github.com/mich1342
-//   24/2/2022
-//
-
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
@@ -11,6 +5,8 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include "builtin_interfaces/msg/time.hpp"
+#include "rclcpp/time.hpp"
 
 #include <cmath>
 
@@ -19,218 +15,131 @@
 #include <array>
 #include <iostream>
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/sync_policies/approximate_time.h>
+
+using namespace message_filters;
+// using SyncPolicy = sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan>;
+using SyncPolicy = sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan>;
+// typedef sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan> SyncPolicy;
+
+
 class scanMerger : public rclcpp::Node
 {
 public:
   scanMerger() : Node("ros2_laser_scan_merger")
-  {
-    initialize_params();
-    refresh_params();
+    {
+        initialize_params();
+        refresh_params();
 
-    laser1_ = std::make_shared<sensor_msgs::msg::LaserScan>();
-    laser2_ = std::make_shared<sensor_msgs::msg::LaserScan>();
+        laser1_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic1_);
+        laser2_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic2_);
+        
+       
+        sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(SyncPolicy(10), *laser1_sub_, *laser2_sub_);
+        sync_->registerCallback(std::bind(&scanMerger::synchronized_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-    // QoS 설정을 best effort 변경
-    auto default_qos = rclcpp::QoS(rclcpp::SensorDataQoS());
-    sub1_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        topic1_, default_qos, std::bind(&scanMerger::scan_callback1, this, std::placeholders::_1));
-    sub2_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-        topic2_, default_qos, std::bind(&scanMerger::scan_callback2, this, std::placeholders::_1));
+        point_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(cloudTopic_, rclcpp::SensorDataQoS().best_effort());
 
-    point_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(cloudTopic_, rclcpp::SensorDataQoS());
+        // Multithreaded Executor for better performance
+        // executor_ = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
+        // executor_->add_node(this->shared_from_this());
+        // executor_thread_ = std::thread([&]() { executor_->spin(); });
+    }
 
-    // QoS 설정을 reliable로 변경
-    // auto qos_reliable = rclcpp::QoS(10).reliable();
-    
-    // sub1_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-    //     topic1_, qos_reliable, std::bind(&scanMerger::scan_callback1, this, std::placeholders::_1));
-    // sub2_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
-    //     topic2_, qos_reliable, std::bind(&scanMerger::scan_callback2, this, std::placeholders::_1));
-
-    // point_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
-    //     cloudTopic_, qos_reliable);
-    
-    RCLCPP_INFO(this->get_logger(), "Hello");
-  }
+    ~scanMerger()
+    {
+    }
 
 private:
-  void scan_callback1(const sensor_msgs::msg::LaserScan::SharedPtr _msg)
+  std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::LaserScan>> laser1_sub_, laser2_sub_;
+  std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_;
+  std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> executor_;
+  std::thread executor_thread_;
+  // typedef sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan> SyncPolicy;
+
+  void synchronized_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser1_msg, const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser2_msg)
   {
-    laser1_ = _msg;
-    update_point_cloud_rgb();
-    // RCLCPP_INFO(this->get_logger(), "I heard: '%f' '%f'", _msg->ranges[0],
-    //         _msg->ranges[100]);
-  }
-  void scan_callback2(const sensor_msgs::msg::LaserScan::SharedPtr _msg)
-  {
-    laser2_ = _msg;
-    // RCLCPP_INFO(this->get_logger(), "I heard: '%f' '%f'", _msg->ranges[0],
-    //         _msg->ranges[100]);
+      laser1_ = *laser1_msg;
+      laser2_ = *laser2_msg;
+      update_point_cloud_rgb();
   }
 
   void update_point_cloud_rgb()
   {
-    refresh_params();
-    pcl::PointCloud<pcl::PointXYZRGB> cloud_;
-    std::vector<std::array<float, 2>> scan_data;
-    int count = 0;
-    float min_theta = 0;
-    float max_theta = 0;
-    if (show1_ && laser1_)
-    {
-      float temp_min_, temp_max_;
-      if( laser1_->angle_min < laser1_->angle_max){
-        temp_min_ = laser1_->angle_min;
-        temp_max_ = laser1_->angle_max;
-      } else{
-        temp_min_ = laser1_->angle_max;
-        temp_max_ = laser1_->angle_min;
-      }
-      for (float i = temp_min_; i <= temp_max_ && count < laser1_->ranges.size();
-           i += laser1_->angle_increment)
-      {
-        pcl::PointXYZRGB pt;
-        pt = pcl::PointXYZRGB(laser1R_, laser1G_, laser1B_);
-        int used_count_ = count;
-        if (flip1_)
-        {
-          used_count_ = (int)laser1_->ranges.size() - 1 - count;
-        }
-        float temp_x = laser1_->ranges[used_count_] * std::cos(i);
-        float temp_y = laser1_->ranges[used_count_] * std::sin(i);
-        pt.x =
-            temp_x * std::cos(laser1Alpha_ * M_PI / 180) - temp_y * std::sin(laser1Alpha_ * M_PI / 180) + laser1XOff_;
-        pt.y =
-            temp_x * std::sin(laser1Alpha_ * M_PI / 180) + temp_y * std::cos(laser1Alpha_ * M_PI / 180) + laser1YOff_;
-        pt.z = laser1ZOff_;
-        if ((i < (laser1AngleMin_ * M_PI / 180)) || (i > (laser1AngleMax_ * M_PI / 180)))
-        {
-          if (inverse1_)
-          {
-            cloud_.points.push_back(pt);
-            float r_ = GET_R(pt.x, pt.y);
-            float theta_ = GET_THETA(pt.x, pt.y);
-            std::array<float, 2> res_;
-            res_[1] = r_;
-            res_[0] = theta_;
-            scan_data.push_back(res_);
-            if (theta_ < min_theta)
-            {
-              min_theta = theta_;
-            }
-            if (theta_ > max_theta)
-            {
-              max_theta = theta_;
-            }
-          }
-        }
-        else
-        {
-          if (!inverse1_)
-          {
-            cloud_.points.push_back(pt);
-            float r_ = GET_R(pt.x, pt.y);
-            float theta_ = GET_THETA(pt.x, pt.y);
-            std::array<float, 2> res_;
-            res_[1] = r_;
-            res_[0] = theta_;
-            scan_data.push_back(res_);
-            if (theta_ < min_theta)
-            {
-              min_theta = theta_;
-            }
-            if (theta_ > max_theta)
-            {
-              max_theta = theta_;
-            }
-          }
-        }
-        count++;
-      }
-    }
+      // refresh_params();
+      pcl::PointCloud<pcl::PointXYZ> cloud_; 
+      std::vector<std::array<float, 2>> scan_data;
+      float min_theta = std::numeric_limits<float>::max();
+      float max_theta = std::numeric_limits<float>::lowest();
 
-    count = 0;
-    if (show2_ && laser2_)
-    {
-      float temp_min_, temp_max_;
-      if( laser2_->angle_min < laser2_->angle_max){
-        temp_min_ = laser2_->angle_min;
-        temp_max_ = laser2_->angle_max;
-      } else{
-        temp_min_ = laser2_->angle_max;
-        temp_max_ = laser2_->angle_min;
-      }
-      for (float i = temp_min_; i <= temp_max_ && count < laser2_->ranges.size();
-           i += laser2_->angle_increment)
-      {
-        pcl::PointXYZRGB pt;
-        pt = pcl::PointXYZRGB(laser2R_, laser2G_, laser2B_);
+      auto process_laser = [&](const sensor_msgs::msg::LaserScan &laser, 
+                                float x_off, float y_off, float z_off, float alpha, 
+                                float angle_min, float angle_max, 
+                                bool flip, bool inverse, bool show) {
+          if (!show || laser.ranges.empty()) return;
 
-        int used_count_ = count;
-        if (flip2_)
-        {
-          used_count_ = (int)laser2_->ranges.size() - 1 - count;
-        }
+          float temp_min = std::min(laser.angle_min, laser.angle_max);
+          float temp_max = std::max(laser.angle_min, laser.angle_max);
+          float alpha_rad = alpha * M_PI / 180.0;
+          float cos_alpha = std::cos(alpha_rad);
+          float sin_alpha = std::sin(alpha_rad);
+          float angle_min_rad = angle_min * M_PI / 180.0;
+          float angle_max_rad = angle_max * M_PI / 180.0;
 
-        float temp_x = laser2_->ranges[used_count_] * std::cos(i);
-        float temp_y = laser2_->ranges[used_count_] * std::sin(i);
-        pt.x =
-            temp_x * std::cos(laser2Alpha_ * M_PI / 180) - temp_y * std::sin(laser2Alpha_ * M_PI / 180) + laser2XOff_;
-        pt.y =
-            temp_x * std::sin(laser2Alpha_ * M_PI / 180) + temp_y * std::cos(laser2Alpha_ * M_PI / 180) + laser2YOff_;
-        pt.z = laser2ZOff_;
-        if ((i < (laser2AngleMin_ * M_PI / 180)) || (i > (laser2AngleMax_ * M_PI / 180)))
-        {
-          if (inverse2_)
-          {
-            cloud_.points.push_back(pt);
-            float r_ = GET_R(pt.x, pt.y);
-            float theta_ = GET_THETA(pt.x, pt.y);
-            std::array<float, 2> res_;
-            res_[1] = r_;
-            res_[0] = theta_;
-            scan_data.push_back(res_);
-            if (theta_ < min_theta)
-            {
-              min_theta = theta_;
-            }
-            if (theta_ > max_theta)
-            {
-              max_theta = theta_;
-            }
+          for (size_t i = 0; i < laser.ranges.size(); ++i) {
+              float angle = temp_min + i * laser.angle_increment;
+              if (angle > temp_max) break;
+
+              size_t idx = flip ? laser.ranges.size() - 1 - i : i;
+              float range = laser.ranges[idx];
+
+              if (std::isnan(range) || range < laser.range_min || range > laser.range_max) continue;
+
+              bool is_in_range = (angle >= angle_min_rad && angle <= angle_max_rad);
+              if (inverse == is_in_range) continue;
+
+              pcl::PointXYZ pt; 
+              float x = range * std::cos(angle);
+              float y = range * std::sin(angle);
+
+              pt.x = x * cos_alpha - y * sin_alpha + x_off;
+              pt.y = x * sin_alpha + y * cos_alpha + y_off;
+              pt.z = z_off;
+
+              cloud_.points.push_back(pt);
+
+              float r_ = std::hypot(pt.x, pt.y);
+              float theta_ = std::atan2(pt.y, pt.x);
+              scan_data.push_back({theta_, r_});
+
+              min_theta = std::min(min_theta, theta_);
+              max_theta = std::max(max_theta, theta_);
           }
-        }
-        else
-        {
-          if (!inverse2_)
-          {
-            cloud_.points.push_back(pt);
-            float r_ = GET_R(pt.x, pt.y);
-            float theta_ = GET_THETA(pt.x, pt.y);
-            std::array<float, 2> res_;
-            res_[1] = r_;
-            res_[0] = theta_;
-            scan_data.push_back(res_);
-            if (theta_ < min_theta)
-            {
-              min_theta = theta_;
-            }
-            if (theta_ > max_theta)
-            {
-              max_theta = theta_;
-            }
-          }
-        }
-        count++;
-      }
-    }
+      };
 
-    auto pc2_msg_ = std::make_shared<sensor_msgs::msg::PointCloud2>();
-    pcl::toROSMsg(cloud_, *pc2_msg_);
-    pc2_msg_->header.frame_id = cloudFrameId_;
-    pc2_msg_->header.stamp = now();
-    pc2_msg_->is_dense = false;
-    point_cloud_pub_->publish(*pc2_msg_);
+      // Process both lasers
+      process_laser(laser1_, laser1XOff_, laser1YOff_, laser1ZOff_, laser1Alpha_, 
+                    laser1AngleMin_, laser1AngleMax_, flip1_, inverse1_, show1_);
+
+      process_laser(laser2_, laser2XOff_, laser2YOff_, laser2ZOff_, laser2Alpha_, 
+                    laser2AngleMin_, laser2AngleMax_, flip2_, inverse2_, show2_);
+
+      // Create and publish PointCloud2 message
+      removePointsWithinRadius(cloud_, 0.2); //radius 0.19
+      auto pc2_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+      pcl::toROSMsg(cloud_, *pc2_msg);
+      pc2_msg->header.frame_id = cloudFrameId_;
+
+      rclcpp::Time time1(laser1_.header.stamp);
+      rclcpp::Time time2(laser2_.header.stamp);
+      pc2_msg->header.stamp = (time1 < time2) ? laser2_.header.stamp : laser1_.header.stamp;
+      pc2_msg->is_dense = false;
+
+      point_cloud_pub_->publish(*pc2_msg);
   }
 
   float GET_R(float x, float y)
@@ -341,6 +250,21 @@ private:
     this->get_parameter_or<bool>("flip2", flip2_, false);
     this->get_parameter_or<bool>("inverse2", inverse2_, false);
   }
+
+  void removePointsWithinRadius(pcl::PointCloud<pcl::PointXYZ>& cloud, float radius, float center_x = 0.0f, float center_y = 0.0f) {
+    pcl::PointCloud<pcl::PointXYZ> filteredCloud;
+    
+    for (const auto& point : cloud.points) {
+        float distance = std::sqrt((point.x - center_x) * (point.x - center_x) + 
+                                   (point.y - center_y) * (point.y - center_y));
+        if (distance >= radius) {
+            filteredCloud.points.push_back(point);
+        }
+    }
+
+    cloud.points.swap(filteredCloud.points);
+  }
+
   std::string topic1_, topic2_, cloudTopic_, cloudFrameId_;
   bool show1_, show2_, flip1_, flip2_, inverse1_, inverse2_;
   float laser1XOff_, laser1YOff_, laser1ZOff_, laser1Alpha_, laser1AngleMin_, laser1AngleMax_;
@@ -351,16 +275,20 @@ private:
 
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub1_;
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub2_;
-  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_;
+  // rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_;
 
-  sensor_msgs::msg::LaserScan::SharedPtr laser1_;
-  sensor_msgs::msg::LaserScan::SharedPtr laser2_;
+  sensor_msgs::msg::LaserScan laser1_;
+  sensor_msgs::msg::LaserScan laser2_;
 };
 
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<scanMerger>());
+  // rclcpp::executors::MultiThreadedExecutor executor;
+  // executor.add_node(std::make_shared<scanMerger>());
+  // executor.spin();
+  // auto node = std::make_shared<scanMerger>();
   rclcpp::shutdown();
   return 0;
 }

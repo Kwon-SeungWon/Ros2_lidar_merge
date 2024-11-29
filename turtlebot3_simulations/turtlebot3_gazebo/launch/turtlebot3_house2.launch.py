@@ -32,7 +32,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     x_pose = LaunchConfiguration('x_pose', default='6.0')
     y_pose = LaunchConfiguration('y_pose', default='-3.0')
-    # yaw = LaunchConfiguration('yaw', default='3.141592')
+    yaw = LaunchConfiguration('yaw', default='3.141592')
 
 
     world = os.path.join(
@@ -67,8 +67,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             'x_pose': x_pose,
-            'y_pose': y_pose
-            # 'yaw' : yaw
+            'y_pose': y_pose,
+            'yaw' : yaw
         }.items()
     )
 

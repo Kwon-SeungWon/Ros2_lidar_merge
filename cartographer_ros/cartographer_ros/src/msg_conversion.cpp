@@ -411,7 +411,15 @@ std::unique_ptr<nav_msgs::msg::OccupancyGrid> CreateOccupancyGridMsg(
               : ::cartographer::common::RoundToInt((1. - color / 255.) * 100.);
       CHECK_LE(-1, value);
       CHECK_GE(100, value);
-      occupancy_grid->data.push_back(value);
+      int new_value = 0;
+      if(value > 50){
+        new_value = 100;
+      }
+      else if(value < 0){
+        new_value = -1;
+      }
+
+      occupancy_grid->data.push_back(new_value);
     }
   }
 

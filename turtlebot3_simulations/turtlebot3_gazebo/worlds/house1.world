@@ -2543,10 +2543,10 @@
       <static>1</static>
     </model>
     <state world_name='default'>
-      <sim_time>509 288000000</sim_time>
-      <real_time>50 930639962</real_time>
-      <wall_time>1731843219 991071247</wall_time>
-      <iterations>50753</iterations>
+      <sim_time>604 930000000</sim_time>
+      <real_time>96 926180124</real_time>
+      <wall_time>1732866822 651372784</wall_time>
+      <iterations>95642</iterations>
       <model name='Building'>
         <pose>0.0388 0.08075 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -2678,30 +2678,30 @@
         </link>
       </model>
       <model name='bookshelf_clone'>
-        <pose>1.06301 -3.18048 0 0 0 -1.52246</pose>
+        <pose>1.6068 -3.04654 0 0 0 -1.52246</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>1.06301 -3.18048 0 0 0 -1.52246</pose>
+          <pose>1.6068 -3.04654 0 0 0 -1.52246</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='bookshelf_clone_0'>
-        <pose>12.1841 -4.34916 0 0 0 -1.52246</pose>
+        <pose>12.7805 -4.70158 0 0 0 -1.52246</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>12.1841 -4.34916 0 0 0 -1.52246</pose>
+          <pose>12.7805 -4.70158 0 0 0 -1.52246</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='bookshelf_clone_1'>
-        <pose>12.1324 -3.07267 0 0 0 -1.52246</pose>
+        <pose>12.7477 -3.66606 0 0 0 -1.52246</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>12.1324 -3.07267 0 0 0 -1.52246</pose>
+          <pose>12.7477 -3.66606 0 0 0 -1.52246</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -2728,10 +2728,10 @@
         </link>
       </model>
       <model name='table'>
-        <pose>-1.68201 4.48681 -1e-06 1e-06 -0 0</pose>
+        <pose>-1.68201 4.48681 -9e-06 0 -1e-06 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-1.68201 4.48681 -1e-06 1e-06 -0 0</pose>
+          <pose>-1.68201 4.48681 -9e-06 0 -1e-06 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 -9.8 0 -0 0</acceleration>
           <wrench>0 0 -9.8 0 -0 0</wrench>
@@ -2763,7 +2763,7 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>-11.658 25.2371 28.7741 -0 0.793077 -1.50418</pose>
+        <pose>0.347458 -0.308837 37.6752 1.3e-05 1.5698 -1.5602</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>

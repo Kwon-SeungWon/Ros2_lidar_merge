@@ -5,8 +5,8 @@
     inverse1: true
     inverse2: true
     laser1Alpha: 0.0
-    laser1AngleMax: 90.0  # 조정된 각도 범위
-    laser1AngleMin: -90.0  # 조정된 각도 범위
+    laser1AngleMax: 270.0  # 조정된 각도 범위
+    laser1AngleMin: 90.0  # 조정된 각도 범위
     laser1B: 0
     laser1G: 0
     laser1R: 255
@@ -14,8 +14,8 @@
     laser1YOff: 0.0
     laser1ZOff: 0.0
     laser2Alpha: 180.0
-    laser2AngleMax: 90.0  # 조정된 각도 범위
-    laser2AngleMin: -90.0  # 조정된 각도 범위
+    laser2AngleMax: 270.0  # 조정된 각도 범위
+    laser2AngleMin: 90.0  # 조정된 각도 범위
     laser2B: 255
     laser2G: 0
     laser2R: 0
@@ -24,17 +24,17 @@
     laser2ZOff: 0.0
     pointCloudTopic: cloud_in
     pointCloutFrameId: base_scan
-    qos_overrides./parameter_events.publisher.depth: 1000
+    qos_overrides./parameter_events.publisher.depth: 1000 #1000
     qos_overrides./parameter_events.publisher.reliability: best_effort #best_effort
     scanTopic1: /scan_front
     scanTopic2: /scan_back
     show1: true
     show2: true
-    use_sim_time: true #false
+    use_sim_time: false #false
 
 /pointcloud_to_laserscan:
   ros__parameters:
-    angle_increment: 0.0087
+    angle_increment: 0.01745 #0.0087
     angle_max: 3.14
     angle_min: -3.14
     inf_epsilon: 1.0
@@ -43,13 +43,13 @@
     qos_overrides:
       /parameter_events:
         publisher:
-          depth: 1000
-          reliability: best_effort
+          depth: 1000 #1000
+          reliability: best_effort #best_effort
     queue_size: 16
     range_max: 10.0
-    range_min: 0.35
-    scan_time: 0.1
+    range_min: 0.22
+    scan_time: 0.05
     target_frame: base_scan
-    transform_tolerance: 0.01
+    transform_tolerance: 0.01 #0.01
     use_inf: true
-    use_sim_time: true #false
+    use_sim_time: false #false
