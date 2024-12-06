@@ -13,9 +13,9 @@ using namespace std::chrono_literals;
 class NavigateStraight : public rclcpp::Node {
 public:
     NavigateStraight()
-        : Node("navigate_straight"),
-          tf_buffer_(std::make_shared<rclcpp::Clock>(RCL_ROS_TIME), tf2::Duration(10s)),
-          tf_listener_(tf_buffer_, this) { // 노드의 포인터를 직접 전달
+        : Node("navigate_straight"){
+        tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
         // Action Client 생성
         nav_to_pose_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
             this, "navigate_to_pose");
@@ -129,11 +129,11 @@ public:
 private:
     bool get_current_pose(geometry_msgs::msg::PoseStamped &pose) {
         try {
-            if (!tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero, 5s)) {
+            if (!tf_buffer_->canTransform("map", "base_link", tf2::TimePointZero, 5s)) {
                 // RCLCPP_WARN(this->get_logger(), "Timeout waiting for transform between map and base_link");
                 return false;
             }
-            auto transform = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
+            auto transform = tf_buffer_->lookupTransform("map", "base_link", tf2::TimePointZero);
             pose.header = transform.header;
             pose.pose.position.x = transform.transform.translation.x;
             pose.pose.position.y = transform.transform.translation.y;
@@ -146,14 +146,14 @@ private:
     }
 
     rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_to_pose_client_;
-    tf2_ros::Buffer tf_buffer_;
-    tf2_ros::TransformListener tf_listener_;
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<NavigateStraight>();
-    node->start_navigation2();
+    node->start_navigation();
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

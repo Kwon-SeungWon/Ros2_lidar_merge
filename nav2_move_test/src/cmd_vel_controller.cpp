@@ -12,7 +12,7 @@ public:
         timer_ = this->create_wall_timer(100ms, std::bind(&MotionController::executeMotion, this));
 
         // Clock 객체 생성
-        clock_ = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);  // System time으로 설정
+        clock_ = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);  // System time
     }
 
 private:
@@ -29,7 +29,7 @@ private:
     }
 
     void moveStraight(double distance) {
-        auto current_time = clock_->now();  // Clock을 통해 시간 가져오기
+        auto current_time = clock_->now();  // Clock
         if (start_time_ == rclcpp::Time(0, 0, RCL_SYSTEM_TIME)) {  // If start_time_ is not set
             start_time_ = current_time;
         }
@@ -46,7 +46,7 @@ private:
     }
 
     void rotate(double angle) {
-        auto current_time = clock_->now();  // Clock을 통해 시간 가져오기
+        auto current_time = clock_->now();  // Clock
         if (start_time_ == rclcpp::Time(0, 0, RCL_SYSTEM_TIME)) {  // If start_time_ is not set
             start_time_ = current_time;
         }
@@ -71,7 +71,7 @@ private:
 
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
     rclcpp::TimerBase::SharedPtr timer_;
-    std::shared_ptr<rclcpp::Clock> clock_;  // Clock 객체 추가
+    std::shared_ptr<rclcpp::Clock> clock_;  // Clock
 
     int motion_state_ = 0;  // Tracks the current motion state
     rclcpp::Time start_time_ = rclcpp::Time(0, 0, RCL_SYSTEM_TIME);  // Start time with specific time source
