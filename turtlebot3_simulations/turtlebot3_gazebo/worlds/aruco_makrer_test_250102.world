@@ -72,7 +72,7 @@
     </scene>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>-17.0606 1.53501 23.5594 0 1.3178 0.065397</pose>
+        <pose>-0.666867 0.455621 28.4668 -0 1.5298 0.001397</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
@@ -6354,51 +6354,6 @@
       </link>
       <pose>-3.44853 -7.68696 0 0 -0 0</pose>
     </model>
-    <model name='grey_wall_clone_0'>
-      <static>1</static>
-      <link name='link'>
-        <pose>0 0 1.4 0 -0 0</pose>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>7.5 0.2 2.8</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <cast_shadows>0</cast_shadows>
-          <geometry>
-            <box>
-              <size>7.5 0.2 2.8</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <uri>model://grey_wall/materials/scripts</uri>
-              <uri>model://grey_wall/materials/textures</uri>
-              <name>vrc/grey_wall</name>
-            </script>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <pose>5.75784 -4.51588 0 0 -0 0</pose>
-    </model>
     <model name='grey_wall_clone_0_clone'>
       <static>1</static>
       <link name='link'>
@@ -6445,65 +6400,125 @@
       <pose>-7.75456 -4.4196 0 0 0 -1.57294</pose>
     </model>
     <state world_name='default'>
-      <sim_time>17599 846000000</sim_time>
-      <real_time>17665 720586293</real_time>
-      <wall_time>1735630813 882809654</wall_time>
-      <iterations>17378198</iterations>
-      <model name='ID0_table_1000-0'>
-        <pose>-2.54965 -6.65039 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>-2.54965 -6.65039 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
+      <sim_time>18350 928000000</sim_time>
+      <real_time>640 992124507</real_time>
+      <wall_time>1735796986 754626643</wall_time>
+      <iterations>639172</iterations>
       <model name='ID0_table_1000-0_0'>
-        <pose>-2.53587 -5.20293 0 0 -0 0</pose>
+        <pose>4.18971 -1.13936 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-2.53587 -5.20293 0 0 -0 0</pose>
+          <pose>4.18971 -1.13936 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <model name='cafe_table'>
-        <pose>0.134811 -5.07715 0 0 -0 0</pose>
+      <model name='ID1_chair_1000-1'>
+        <pose>4.2506 0.492052 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>0.134811 -5.07715 0 0 -0 0</pose>
+          <pose>4.2506 0.492052 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID2_dresser_1000-2'>
+        <pose>0.841958 4.71042 0 0 0 -1.54932</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>0.841958 4.71042 0 0 0 -1.54932</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID3_sofa_1000-3'>
+        <pose>-2.71371 8.09567 1.10642 0 -0 1.57175</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-2.71371 8.09567 1.10642 0 -0 1.57175</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID4_area-rug_1000-4'>
+        <pose>-5.0486 3.94748 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-5.0486 3.94748 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID5_lamp_1000-5'>
+        <pose>7.04182 4.04999 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>7.04182 4.04999 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID6_refrigrator_1000-6'>
+        <pose>6.19696 1.66189 0 0 0 -1.54961</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>6.19696 1.66189 0 0 0 -1.54961</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID7_washing-machine_1000-7'>
+        <pose>-6.56195 -0.404417 -0.053844 0 -0 1.57626</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-6.56195 -0.404417 -0.053844 0 -0 1.57626</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID8_television_1000-8'>
+        <pose>-7.5079 6.53435 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-7.5079 6.53435 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ID9_bed_1000-9'>
+        <pose>2.83289 8.35617 0 0 0 -1.54016</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>2.83289 8.35617 0 0 0 -1.54016</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='grey_wall'>
-        <pose>3.6716 -7.76563 0 0 -0 0</pose>
+        <pose>3.52061 -2.02894 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>3.6716 -7.76563 1.4 0 -0 0</pose>
+          <pose>3.52061 -2.02894 1.4 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='grey_wall_clone'>
-        <pose>-3.79977 -7.76176 0 0 -0 0</pose>
+        <pose>-3.77563 -2.02837 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-3.79977 -7.76176 1.4 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='grey_wall_clone_0'>
-        <pose>7.48417 -4.13133 0 0 0 -1.57294</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>7.48417 -4.13133 1.4 0 0 -1.57294</pose>
+          <pose>-3.77563 -2.02837 1.4 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -6742,27 +6757,27 @@
           <pose>1.74576 5.28577 0 0 -0 0</pose>
           <scale>1 1 1</scale>
           <link name='link'>
-            <pose>1.74579 5.28577 -4e-06 1.6e-05 1.6e-05 -0.00018</pose>
+            <pose>1.74582 5.28576 -5e-06 -1e-06 -1e-06 -0.000306</pose>
             <velocity>0 0 0 0 -0 0</velocity>
-            <acceleration>2.75738 -0.395759 -3.22249 1.07453 1.20363 -0.000178</acceleration>
-            <wrench>13.3202 -1.91182 -15.5671 0 -0 0</wrench>
+            <acceleration>-8.4421 1.63516 19.0991 -1.29828 0.930727 3.14151</acceleration>
+            <wrench>-40.7818 7.89906 92.2632 0 -0 0</wrench>
           </link>
         </model>
         <model name='turtlebot3_house::first_2015_trash_can_0'>
           <pose>-4.83124 8.26823 0 0 -0 0</pose>
           <scale>1 1 1</scale>
           <link name='link'>
-            <pose>-4.83122 8.26821 -3e-06 1e-06 1.1e-05 -0.000106</pose>
+            <pose>-4.83121 8.2682 -3e-06 -2e-06 6e-06 -0.000269</pose>
             <velocity>0 0 0 0 -0 0</velocity>
-            <acceleration>-4.44714 -0.65061 1.03608 1.7665 0.491548 2.6e-05</acceleration>
-            <wrench>-21.4831 -3.14294 5.00504 0 -0 0</wrench>
+            <acceleration>-3.28459 -0.479978 -1.79688 -1.83835 -0.506463 3.14158</acceleration>
+            <wrench>-15.8671 -2.31866 -8.68031 0 -0 0</wrench>
           </link>
         </model>
         <model name='turtlebot3_house::table'>
           <pose>-2.79498 5.7976 0 0 -0 0</pose>
           <scale>1 1 1</scale>
           <link name='link'>
-            <pose>-2.79498 5.7976 -1e-06 0 -1e-06 0</pose>
+            <pose>-2.79498 5.7976 -6e-06 -1e-06 5e-06 0</pose>
             <velocity>0 0 0 0 -0 0</velocity>
             <acceleration>0 0 -9.8 0 -0 0</acceleration>
             <wrench>0 0 -9.8 0 -0 0</wrench>
@@ -6779,306 +6794,10 @@
           </link>
         </model>
       </model>
-      <model name='turtlebot3_square'>
-        <pose>0.10495 -5.13998 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='Wall_1'>
-          <pose>-2.32005 -5.13998 0 0 -0 1.5708</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-        <link name='Wall_2'>
-          <pose>0.104945 -2.71498 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-        <link name='Wall_3'>
-          <pose>2.52995 -5.13998 0 0 0 -1.5708</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-        <link name='Wall_4'>
-          <pose>0.104945 -7.56498 0 0 -0 3.14159</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
       <light name='sun'>
         <pose>0 0 10 0 -0 0</pose>
       </light>
     </state>
-    <model name='turtlebot3_square'>
-      <pose>0.104945 -5.13998 0 0 -0 0</pose>
-      <link name='Wall_1'>
-        <collision name='Wall_1_Collision'>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='Wall_1_Visual'>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
-            </script>
-            <ambient>1 1 1 1</ambient>
-          </material>
-        </visual>
-        <pose>-2.425 0 0 0 -0 1.5708</pose>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <link name='Wall_2'>
-        <collision name='Wall_2_Collision'>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='Wall_2_Visual'>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
-            </script>
-            <ambient>1 1 1 1</ambient>
-          </material>
-        </visual>
-        <pose>0 2.425 0 0 -0 0</pose>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <link name='Wall_3'>
-        <collision name='Wall_3_Collision'>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='Wall_3_Visual'>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
-            </script>
-            <ambient>1 1 1 1</ambient>
-          </material>
-        </visual>
-        <pose>2.425 0 0 0 0 -1.5708</pose>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <link name='Wall_4'>
-        <collision name='Wall_4_Collision'>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='Wall_4_Visual'>
-          <pose>0 0 0.25 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>5 0.15 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
-            </script>
-            <ambient>1 1 1 1</ambient>
-          </material>
-        </visual>
-        <pose>0 -2.425 0 0 -0 3.14159</pose>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <static>1</static>
-    </model>
-    <model name='cafe_table'>
-      <static>1</static>
-      <link name='link'>
-        <collision name='surface'>
-          <pose>0 0 0.755 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>0.913 0.913 0.04</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <collision name='column'>
-          <pose>0 0 0.37 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>0.042 0.042 0.74</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <collision name='base'>
-          <pose>0 0 0.02 0 -0 0</pose>
-          <geometry>
-            <box>
-              <size>0.56 0.56 0.04</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <mesh>
-              <uri>model://cafe_table/meshes/cafe_table.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <pose>0.134811 -5.07715 0 0 -0 0</pose>
-    </model>
-    <model name='ID0_table_1000-0'>
-      <static>1</static>
-      <link name='link'>
-        <visual name='visual'>
-          <geometry>
-            <mesh>
-              <uri>model://id0_table_1000-0/meshes/ID0_table_1000-0.dae</uri>
-              <scale>0.8 0.8 0.8</scale>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <pose>-3.27756 -5.67868 0 0 -0 0</pose>
-    </model>
     <model name='ID0_table_1000-0_0'>
       <static>1</static>
       <link name='link'>
@@ -7095,6 +6814,159 @@
         <kinematic>0</kinematic>
       </link>
       <pose>-2.53587 -5.20293 0 0 -0 0</pose>
+    </model>
+    <model name='ID1_chair_1000-1'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id1_chair_1000-1/meshes/ID1_chair_1000-1.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>4.2506 0.492052 0 0 -0 0</pose>
+    </model>
+    <model name='ID2_dresser_1000-2'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id2_dresser_1000-2/meshes/ID2_dresser_1000-2.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>1.00488 5.24773 0 0 -0 0</pose>
+    </model>
+    <model name='ID3_sofa_1000-3'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id3_sofa_1000-3/meshes/ID3_sofa_1000-3.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>-2.71371 8.09567 0 0 -0 0</pose>
+    </model>
+    <model name='ID4_area-rug_1000-4'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id4_area-rug_1000-4/meshes/ID4_area-rug_1000-4.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>-5.0486 3.94748 0 0 -0 0</pose>
+    </model>
+    <model name='ID5_lamp_1000-5'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id5_lamp_1000-5/meshes/ID5_lamp_1000-5.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>7.04182 4.04999 0 0 -0 0</pose>
+    </model>
+    <model name='ID6_refrigrator_1000-6'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id6_refrigrator_1000-6/meshes/ID6_refrigrator_1000-6.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>6.34416 1.96923 0 0 -0 0</pose>
+    </model>
+    <model name='ID7_washing-machine_1000-7'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id7_washing-machine_1000-7/meshes/ID7_washing-machine_1000-7.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>-6.59061 -0.203219 0 0 -0 0</pose>
+    </model>
+    <model name='ID8_television_1000-8'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id8_television_1000-8/meshes/ID8_television_1000-8.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>-7.5079 6.53435 0 0 -0 0</pose>
+    </model>
+    <model name='ID9_bed_1000-9'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://id9_bed_1000-9/meshes/ID9_bed_1000-9.dae</uri>
+              <scale>1.2 1.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>2.83289 8.35617 0 0 -0 0</pose>
     </model>
   </world>
 </sdf>

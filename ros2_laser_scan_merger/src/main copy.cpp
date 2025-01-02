@@ -77,7 +77,7 @@ private:
       {
           std::thread([this, laser1_msg, laser2_msg]() {
               {
-                  std::lock_guard<std::mutex> lock(mutex_); 
+                  std::lock_guard<std::mutex> lock(mutex_); // 동기화
                   laser1_ = *laser1_msg;
                   laser2_ = *laser2_msg;
               }
