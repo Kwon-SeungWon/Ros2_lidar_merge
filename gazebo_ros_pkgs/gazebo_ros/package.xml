@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>gazebo_ros</name>
-  <version>3.8.0</version>
+  <version>3.9.0</version>
   <description>
-    Utilities to interface with <a href="http://gazebosim.org">Gazebo</a> through ROS.
+    Utilities to interface with <a href="http://classic.gazebosim.org">Gazebo</a> through ROS.
   </description>
 
   <maintainer email="jrivero@osrfoundation.org">Jose Luis Rivero</maintainer>
@@ -12,7 +12,7 @@
 
   <license>Apache 2.0</license>
 
-  <url type="website">http://gazebosim.org/tutorials?cat=connect_ros</url>
+  <url type="website">http://classic.gazebosim.org/tutorials?cat=connect_ros</url>
   <url type="bugtracker">https://github.com/ros-simulation/gazebo_ros_pkgs/issues</url>
   <url type="repository">https://github.com/ros-simulation/gazebo_ros_pkgs</url>
 
@@ -49,5 +49,10 @@
 
   <export>
     <build_type>ament_cmake</build_type>
+    <deprecated>
+      This package has been deprecated as of January 2025 with Gazebo classic 11 reaching
+      end-of-life. Users are highly encouraged to migrate to the new Gazebo
+      using our migration guides (https://gazebosim.org/docs/latest/gazebo_classic_migration)
+    </deprecated>
   </export>
 </package>

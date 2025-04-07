@@ -188,7 +188,7 @@ Node::SharedPtr Node::CreateWithArgs(Args && ... args)
   }
 
   // Generate warning on start up if use_sim_time parameter is set to false
-  bool check_sim_time;
+  bool check_sim_time = false;
   node->get_parameter("use_sim_time", check_sim_time);
   if (!check_sim_time) {
     RCLCPP_WARN(

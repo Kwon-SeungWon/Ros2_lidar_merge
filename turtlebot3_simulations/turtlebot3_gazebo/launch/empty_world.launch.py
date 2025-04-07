@@ -61,7 +61,7 @@ def generate_launch_description():
 
     spawn_turtlebot_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(launch_file_dir, 'spawn_turtlebot3.launch.py')
+            os.path.join(launch_file_dir, 'spawn_ammr.launch.py')
         ),
         launch_arguments={
             'x_pose': x_pose,
@@ -74,7 +74,7 @@ def generate_launch_description():
     # Add the commands to the launch description
     ld.add_action(gzserver_cmd)
     ld.add_action(gzclient_cmd)
-    ld.add_action(robot_state_publisher_cmd)
+    # ld.add_action(robot_state_publisher_cmd)
     ld.add_action(spawn_turtlebot_cmd)
 
     return ld

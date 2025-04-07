@@ -1,217 +1,285 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <pcl_conversions/pcl_conversions.h>
-#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include "builtin_interfaces/msg/time.hpp"
 #include "rclcpp/time.hpp"
 
 #include <cmath>
-
 #include <string>
 #include <vector>
 #include <array>
 #include <iostream>
+#include <limits>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
-#include <mutex> 
 
-using namespace message_filters;
-// using SyncPolicy = sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan>;
-using SyncPolicy = sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan>;
-// typedef sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan> SyncPolicy;
+using SyncPolicy = message_filters::sync_policies::ApproximateTime<
+  sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan>;
 
-
-class scanMerger : public rclcpp::Node
+class ScanMerger : public rclcpp::Node
 {
 public:
-  scanMerger() : Node("ros2_laser_scan_merger")
+  ScanMerger() : Node("ros2_laser_scan_merger"),
+                 new_data_available_(false),
+                 worker_shutdown_(false)
+  {
+    initialize_params();
+    refresh_params();
+
+    laser1_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic1_);
+    laser2_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic2_);
+    
+    sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(SyncPolicy(10), *laser1_sub_, *laser2_sub_);
+    sync_->registerCallback(std::bind(&ScanMerger::synchronized_callback, this,
+                                        std::placeholders::_1, std::placeholders::_2));
+
+    point_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(cloudTopic_, rclcpp::SensorDataQoS().best_effort());
+
+    point_cloud_pub_laser1_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("laser1/points", rclcpp::SensorDataQoS().best_effort());
+    point_cloud_pub_laser2_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("laser2/points", rclcpp::SensorDataQoS().best_effort());
+    
+    // 워커 스레드 시작: 새로운 데이터가 도착하면 update_point_cloud_rgb()를 호출
+    worker_thread_ = std::thread(&ScanMerger::workerLoop, this);
+  }
+
+  ~ScanMerger()
+  {
     {
-        initialize_params();
-        refresh_params();
-
-        laser1_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic1_);
-        laser2_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>(this, topic2_);
-        
-       
-        sync_ = std::make_shared<message_filters::Synchronizer<SyncPolicy>>(SyncPolicy(10), *laser1_sub_, *laser2_sub_);
-        sync_->registerCallback(std::bind(&scanMerger::synchronized_callback, this, std::placeholders::_1, std::placeholders::_2));
-
-        point_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(cloudTopic_, rclcpp::SensorDataQoS().best_effort());
-
-        // Multithreaded Executor for better performance
-        // executor_ = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
-        // executor_->add_node(this->shared_from_this());
-        // executor_thread_ = std::thread([&]() { executor_->spin(); });
+      std::lock_guard<std::mutex> lock(worker_mutex_);
+      worker_shutdown_ = true;
+      worker_cv_.notify_one();
     }
-
-    ~scanMerger()
-    {
+    if (worker_thread_.joinable()) {
+      worker_thread_.join();
     }
+  }
 
 private:
+  // Message Filter 관련 멤버
   std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::LaserScan>> laser1_sub_, laser2_sub_;
   std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_;
-  std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> executor_;
-  std::thread executor_thread_;
-  std::mutex mutex_;
-  
-  // typedef sync_policies::ApproximateTime<sensor_msgs::msg::LaserScan, sensor_msgs::msg::LaserScan> SyncPolicy;
 
-  // void synchronized_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser1_msg, const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser2_msg)
-  // {
-  //     laser1_ = *laser1_msg;
-  //     laser2_ = *laser2_msg;
-  //     update_point_cloud_rgb();
-  // }
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_laser1_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_laser2_;
 
-  void synchronized_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser1_msg, const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser2_msg)
+  // ... (기존 멤버 변수 및 파라미터)
+
+  // laser 데이터 보호를 위한 뮤텍스
+  std::mutex data_mutex_;
+  sensor_msgs::msg::LaserScan laser1_;
+  sensor_msgs::msg::LaserScan laser2_;
+
+  // 워커 스레드 및 동기화 변수
+  std::thread worker_thread_;
+  std::mutex worker_mutex_;
+  std::condition_variable worker_cv_;
+  bool new_data_available_;
+  bool worker_shutdown_;
+
+  // 파라미터 변수
+  std::string topic1_, topic2_, cloudTopic_, cloudFrameId_;
+  bool show1_, show2_, flip1_, flip2_, inverse1_, inverse2_;
+  float laser1XOff_, laser1YOff_, laser1ZOff_, laser1Alpha_, laser1AngleMin_, laser1AngleMax_;
+  uint8_t laser1R_, laser1G_, laser1B_;
+  float laser2XOff_, laser2YOff_, laser2ZOff_, laser2Alpha_, laser2AngleMin_, laser2AngleMax_;
+  uint8_t laser2R_, laser2G_, laser2B_;
+
+  // 콜백: 동기화된 laser 메시지가 도착하면 데이터 업데이트 후 워커에게 알림
+  void synchronized_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser1_msg,
+                               const sensor_msgs::msg::LaserScan::ConstSharedPtr &laser2_msg)
   {
-      try 
-      {
-          std::thread([this, laser1_msg, laser2_msg]() {
-              {
-                  std::lock_guard<std::mutex> lock(mutex_); 
-                  laser1_ = *laser1_msg;
-                  laser2_ = *laser2_msg;
-              }
-              update_point_cloud_rgb();
-          }).detach();
-      } 
-      catch (const std::exception &e)
-      {
-          RCLCPP_ERROR(this->get_logger(), "Exception in callback: %s", e.what());
-      }
+    {
+      std::lock_guard<std::mutex> lock(data_mutex_);
+      laser1_ = *laser1_msg;
+      laser2_ = *laser2_msg;
+    }
+    {
+      std::lock_guard<std::mutex> lock(worker_mutex_);
+      new_data_available_ = true;
+      worker_cv_.notify_one();
+    }
   }
 
+  // 워커 스레드 루프: 새로운 데이터가 도착하면 update_point_cloud_rgb() 실행
+  void workerLoop()
+  {
+    while (true) {
+      std::unique_lock<std::mutex> lock(worker_mutex_);
+      worker_cv_.wait(lock, [this] { return new_data_available_ || worker_shutdown_; });
+      if (worker_shutdown_) {
+        break;
+      }
+      new_data_available_ = false;
+      lock.unlock();
+
+      update_point_cloud_rgb();
+    }
+  }
+
+
+  // 기존 update_point_cloud_rgb() 함수를 수정하여 각각의 라이다 점들을 별도의 클라우드로 처리
   void update_point_cloud_rgb()
   {
-      // refresh_params();
-      pcl::PointCloud<pcl::PointXYZ> cloud_; 
-      std::vector<std::array<float, 2>> scan_data;
-      float min_theta = std::numeric_limits<float>::max();
-      float max_theta = std::numeric_limits<float>::lowest();
+    // laser 메시지들을 안전하게 복사
+    sensor_msgs::msg::LaserScan local_laser1, local_laser2;
+    {
+      std::lock_guard<std::mutex> lock(data_mutex_);
+      local_laser1 = laser1_;
+      local_laser2 = laser2_;
+    }
 
-      auto process_laser = [&](const sensor_msgs::msg::LaserScan &laser, 
-                                float x_off, float y_off, float z_off, float alpha, 
-                                float angle_min, float angle_max, 
-                                bool flip, bool inverse, bool show) {
-          if (!show || laser.ranges.empty()) return;
+    // 각 라이다별 포인트 클라우드 객체 생성
+    pcl::PointCloud<pcl::PointXYZ> cloud1;
+    pcl::PointCloud<pcl::PointXYZ> cloud2;
 
-          float temp_min = std::min(laser.angle_min, laser.angle_max);
-          float temp_max = std::max(laser.angle_min, laser.angle_max);
-          float alpha_rad = alpha * M_PI / 180.0;
-          float cos_alpha = std::cos(alpha_rad);
-          float sin_alpha = std::sin(alpha_rad);
-          float angle_min_rad = angle_min * M_PI / 180.0;
-          float angle_max_rad = angle_max * M_PI / 180.0;
+    // 라이다1 처리
+    if (show1_ && !local_laser1.ranges.empty()) {
+      float temp_min = std::min(local_laser1.angle_min, local_laser1.angle_max);
+      float temp_max = std::max(local_laser1.angle_min, local_laser1.angle_max);
+      float alpha_rad = laser1Alpha_ * M_PI / 180.0;
+      float cos_alpha = std::cos(alpha_rad);
+      float sin_alpha = std::sin(alpha_rad);
+      float angle_min_rad = laser1AngleMin_ * M_PI / 180.0;
+      float angle_max_rad = laser1AngleMax_ * M_PI / 180.0;
 
-          for (size_t i = 0; i < laser.ranges.size(); ++i) {
-              float angle = temp_min + i * laser.angle_increment;
-              if (angle > temp_max) break;
+      for (size_t i = 0; i < local_laser1.ranges.size(); ++i) {
+        float angle = temp_min + i * local_laser1.angle_increment;
+        if (angle > temp_max) break;
 
-              size_t idx = flip ? laser.ranges.size() - 1 - i : i;
-              float range = laser.ranges[idx];
+        size_t idx = flip1_ ? local_laser1.ranges.size() - 1 - i : i;
+        float range = local_laser1.ranges[idx];
 
-              if (std::isnan(range) || range < laser.range_min || range > laser.range_max) continue;
+        if (std::isnan(range) || range < local_laser1.range_min || range > local_laser1.range_max)
+          continue;
 
-              bool is_in_range = (angle >= angle_min_rad && angle <= angle_max_rad);
-              if (inverse == is_in_range) continue;
+        bool is_in_range = (angle >= angle_min_rad && angle <= angle_max_rad);
+        if (inverse1_ == is_in_range)
+          continue;
 
-              pcl::PointXYZ pt; 
-              float x = range * std::cos(angle);
-              float y = range * std::sin(angle);
+        pcl::PointXYZ pt;
+        float x = range * std::cos(angle);
+        float y = range * std::sin(angle);
 
-              pt.x = x * cos_alpha - y * sin_alpha + x_off;
-              pt.y = x * sin_alpha + y * cos_alpha + y_off;
-              pt.z = z_off;
+        pt.x = x * cos_alpha - y * sin_alpha + laser1XOff_;
+        pt.y = x * sin_alpha + y * cos_alpha + laser1YOff_;
+        pt.z = laser1ZOff_;
 
-              cloud_.points.push_back(pt);
+        cloud1.points.push_back(pt);
+      }
+    }
 
-              float r_ = std::hypot(pt.x, pt.y);
-              float theta_ = std::atan2(pt.y, pt.x);
-              scan_data.push_back({theta_, r_});
+    // 라이다2 처리
+    if (show2_ && !local_laser2.ranges.empty()) {
+      float temp_min = std::min(local_laser2.angle_min, local_laser2.angle_max);
+      float temp_max = std::max(local_laser2.angle_min, local_laser2.angle_max);
+      float alpha_rad = laser2Alpha_ * M_PI / 180.0;
+      float cos_alpha = std::cos(alpha_rad);
+      float sin_alpha = std::sin(alpha_rad);
+      float angle_min_rad = laser2AngleMin_ * M_PI / 180.0;
+      float angle_max_rad = laser2AngleMax_ * M_PI / 180.0;
 
-              min_theta = std::min(min_theta, theta_);
-              max_theta = std::max(max_theta, theta_);
-          }
-      };
+      for (size_t i = 0; i < local_laser2.ranges.size(); ++i) {
+        float angle = temp_min + i * local_laser2.angle_increment;
+        if (angle > temp_max) break;
 
-      // Process both lasers
-      process_laser(laser1_, laser1XOff_, laser1YOff_, laser1ZOff_, laser1Alpha_, 
-                    laser1AngleMin_, laser1AngleMax_, flip1_, inverse1_, show1_);
+        size_t idx = flip2_ ? local_laser2.ranges.size() - 1 - i : i;
+        float range = local_laser2.ranges[idx];
 
-      process_laser(laser2_, laser2XOff_, laser2YOff_, laser2ZOff_, laser2Alpha_, 
-                    laser2AngleMin_, laser2AngleMax_, flip2_, inverse2_, show2_);
+        if (std::isnan(range) || range < local_laser2.range_min || range > local_laser2.range_max)
+          continue;
 
-      // Create and publish PointCloud2 message
-      removePointsWithinRadius(cloud_, 0.2); //radius 0.19
-      auto pc2_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
-      pcl::toROSMsg(cloud_, *pc2_msg);
-      pc2_msg->header.frame_id = cloudFrameId_;
+        bool is_in_range = (angle >= angle_min_rad && angle <= angle_max_rad);
+        if (inverse2_ == is_in_range)
+          continue;
 
-      rclcpp::Time time1(laser1_.header.stamp);
-      rclcpp::Time time2(laser2_.header.stamp);
-      pc2_msg->header.stamp = (time1 < time2) ? laser2_.header.stamp : laser1_.header.stamp;
-      pc2_msg->is_dense = false;
+        pcl::PointXYZ pt;
+        float x = range * std::cos(angle);
+        float y = range * std::sin(angle);
 
-      point_cloud_pub_->publish(*pc2_msg);
+        pt.x = x * cos_alpha - y * sin_alpha + laser2XOff_;
+        pt.y = x * sin_alpha + y * cos_alpha + laser2YOff_;
+        pt.z = laser2ZOff_;
+
+        cloud2.points.push_back(pt);
+      }
+    }
+
+    // 필요시 가까운 점 제거 (각 클라우드에 대해)
+    removePointsWithinRadius(cloud1, 0.2);
+    removePointsWithinRadius(cloud2, 0.2);
+
+    // (옵션) 병합된 클라우드도 생성 가능
+    pcl::PointCloud<pcl::PointXYZ> mergedCloud = cloud1;
+    mergedCloud.points.insert(mergedCloud.points.end(), cloud2.points.begin(), cloud2.points.end());
+    auto merged_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+    pcl::toROSMsg(mergedCloud, *merged_msg);
+    merged_msg->header.frame_id = cloudFrameId_;
+
+    // 두 laser 중 늦은 시간 사용
+    rclcpp::Time time1(local_laser1.header.stamp);
+    rclcpp::Time time2(local_laser2.header.stamp);
+    merged_msg->header.stamp = (time1 < time2) ? local_laser2.header.stamp : local_laser1.header.stamp;
+    merged_msg->is_dense = false;
+    point_cloud_pub_->publish(*merged_msg);
+
+    // 라이다1 포인트 클라우드 메시지 생성 및 발행
+    auto pc2_msg1 = std::make_shared<sensor_msgs::msg::PointCloud2>();
+    pcl::toROSMsg(cloud1, *pc2_msg1);
+    pc2_msg1->header.frame_id = cloudFrameId_;
+    pc2_msg1->header.stamp = local_laser1.header.stamp;
+    pc2_msg1->is_dense = false;
+    point_cloud_pub_laser1_->publish(*pc2_msg1);
+
+    // 라이다2 포인트 클라우드 메시지 생성 및 발행
+    auto pc2_msg2 = std::make_shared<sensor_msgs::msg::PointCloud2>();
+    pcl::toROSMsg(cloud2, *pc2_msg2);
+    pc2_msg2->header.frame_id = cloudFrameId_;
+    pc2_msg2->header.stamp = local_laser2.header.stamp;
+    pc2_msg2->is_dense = false;
+    point_cloud_pub_laser2_->publish(*pc2_msg2);
   }
 
   float GET_R(float x, float y)
   {
-    return sqrt(x * x + y * y);
+    return std::sqrt(x * x + y * y);
   }
+
   float GET_THETA(float x, float y)
   {
     float temp_res;
-    if ((x != 0))
-    {
-      temp_res = atan(y / x);
+    if (x != 0) {
+      temp_res = std::atan(y / x);
+    } else {
+      temp_res = (y >= 0) ? M_PI / 2 : -M_PI / 2;
     }
-    else
-    {
-      if (y >= 0)
-      {
-        temp_res = M_PI / 2;
-      }
-      else
-      {
-        temp_res = -M_PI / 2;
-      }
+    if (temp_res > 0 && y < 0) {
+      temp_res -= M_PI;
+    } else if (temp_res < 0 && x < 0) {
+      temp_res += M_PI;
     }
-    if (temp_res > 0)
-    {
-      if (y < 0)
-      {
-        temp_res -= M_PI;
-      }
-    }
-    else if (temp_res < 0)
-    {
-      if (x < 0)
-      {
-        temp_res += M_PI;
-      }
-    }
-    // RCLCPP_INFO(this->get_logger(), "x: '%f', y: '%f', a: '%f'", x, y, temp_res);
-
     return temp_res;
   }
+
   float interpolate(float angle_1, float angle_2, float magnitude_1, float magnitude_2, float current_angle)
   {
     return (magnitude_1 + current_angle * ((magnitude_2 - magnitude_1) / (angle_2 - angle_1)));
   }
+
   void initialize_params()
   {
     this->declare_parameter("pointCloudTopic", "base/custom_cloud");
-    this->declare_parameter("pointCloutFrameId", "laser");
+    this->declare_parameter("pointCloutFrameId", "laser");  // 오타 주의: 나중에 "pointCloudFrameId"로 수정 권장
 
     this->declare_parameter("scanTopic1", "lidar_front_right/scan");
     this->declare_parameter("laser1XOff", -0.45);
@@ -241,6 +309,7 @@ private:
     this->declare_parameter("flip2", false);
     this->declare_parameter("inverse2", false);
   }
+
   void refresh_params()
   {
     this->get_parameter_or<std::string>("pointCloudTopic", cloudTopic_, "pointCloud");
@@ -275,42 +344,23 @@ private:
 
   void removePointsWithinRadius(pcl::PointCloud<pcl::PointXYZ>& cloud, float radius, float center_x = 0.0f, float center_y = 0.0f) {
     pcl::PointCloud<pcl::PointXYZ> filteredCloud;
-    
     for (const auto& point : cloud.points) {
-        float distance = std::sqrt((point.x - center_x) * (point.x - center_x) + 
-                                   (point.y - center_y) * (point.y - center_y));
-        if (distance >= radius) {
-            filteredCloud.points.push_back(point);
-        }
+      float distance = std::sqrt((point.x - center_x) * (point.x - center_x) +
+                                 (point.y - center_y) * (point.y - center_y));
+      if (distance >= radius) {
+        filteredCloud.points.push_back(point);
+      }
     }
-
     cloud.points.swap(filteredCloud.points);
   }
 
-  std::string topic1_, topic2_, cloudTopic_, cloudFrameId_;
-  bool show1_, show2_, flip1_, flip2_, inverse1_, inverse2_;
-  float laser1XOff_, laser1YOff_, laser1ZOff_, laser1Alpha_, laser1AngleMin_, laser1AngleMax_;
-  uint8_t laser1R_, laser1G_, laser1B_;
-
-  float laser2XOff_, laser2YOff_, laser2ZOff_, laser2Alpha_, laser2AngleMin_, laser2AngleMax_;
-  uint8_t laser2R_, laser2G_, laser2B_;
-
-  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub1_;
-  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub2_;
-  // rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_pub_;
-
-  sensor_msgs::msg::LaserScan laser1_;
-  sensor_msgs::msg::LaserScan laser2_;
+  // 중복된 변수 선언 제거 (이미 상단에 선언됨)
 };
 
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<scanMerger>());
-  // rclcpp::executors::MultiThreadedExecutor executor;
-  // executor.add_node(std::make_shared<scanMerger>());
-  // executor.spin();
-  // auto node = std::make_shared<scanMerger>();
+  rclcpp::spin(std::make_shared<ScanMerger>());
   rclcpp::shutdown();
   return 0;
 }

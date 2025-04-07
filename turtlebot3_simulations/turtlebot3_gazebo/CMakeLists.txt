@@ -27,6 +27,7 @@ find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(xacro REQUIRED)
 
 ################################################################################
 # Build
@@ -69,7 +70,7 @@ install(TARGETS ${EXEC_NAME}
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch models rviz urdf worlds
+install(DIRECTORY launch models rviz urdf worlds meshes
   DESTINATION share/${PROJECT_NAME}/
 )
 

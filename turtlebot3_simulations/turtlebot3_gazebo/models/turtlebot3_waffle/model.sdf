@@ -518,7 +518,7 @@
 
     <link name="camera_rgb_frame">
       <inertial>
-        <pose>0.069 -0.047 0.107 0 0 0</pose>
+        <pose>0.069 0.0 0.107 0 0 0</pose>
         <inertia>
           <ixx>0.001</ixx>
           <ixy>0.000</ixy>
@@ -530,10 +530,10 @@
         <mass>0.035</mass>
       </inertial>
 
-      <pose>0.069 -0.047 0.107 0 0 0</pose>
+      <pose>0.069 0.0 0.107 0 0 0</pose>
       <sensor name="depth_camera" type="depth">
         <always_on>true</always_on>
-        <visualize>false</visualize>
+        <visualize>true</visualize>
         <update_rate>5</update_rate>
         <camera name="camera">
           <horizontal_fov>1.02974</horizontal_fov>
@@ -558,6 +558,54 @@
         <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
           <camera_name>depth_camera</camera_name>
           <frame_name>camera_depth_frame</frame_name>
+          <hack_baseline>0</hack_baseline>
+          <min_depth>0.001</min_depth>
+        </plugin>
+      </sensor>
+    </link>    
+
+    <link name="camera_rear_rgb_frame">
+      <inertial>
+        <pose>-0.190 0.0 0.107 0 0 3.141592</pose>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.000</ixy>
+          <ixz>0.000</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.000</iyz>
+          <izz>0.001</izz>
+        </inertia>
+        <mass>0.035</mass>
+      </inertial>
+
+      <pose>-0.190 0.0 0.107 0 0 3.141592</pose>
+      <sensor name="depth_rear_camera" type="depth">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>5</update_rate>
+        <camera name="camera">
+          <horizontal_fov>1.02974</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>10</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise is sampled independently per pixel on each frame.
+                That pixel's noise value is added to each of its color
+                  channels, which at that point lie in the range [0,1]. -->
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="depth_rear_camera_controller" filename="libgazebo_ros_camera.so">
+          <camera_name>depth_rear_camera</camera_name>
+          <frame_name>camera_rear_depth_frame</frame_name>
           <hack_baseline>0</hack_baseline>
           <min_depth>0.001</min_depth>
         </plugin>
@@ -610,7 +658,7 @@
     <joint name="lidar_joint" type="fixed">
       <parent>base_link</parent>
       <child>base_scan</child>
-      <pose>-0.064 0 0.121 0 0 0</pose>
+      <pose>0.0 0 0.121 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -619,7 +667,7 @@
     <joint name="lidar_front_joint" type="fixed">
       <parent>base_scan</parent>
       <child>base_scan_front</child>
-      <pose> 0.05 0 0 0 0</pose>
+      <pose> 0.0 0 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -628,7 +676,7 @@
     <joint name="lidar_back_joint" type="fixed">
       <parent>base_scan</parent>
       <child>base_scan_back</child>
-      <pose>-0.05 0 0 0 0 3.141592</pose>
+      <pose>-0.10 0 0 0 0 3.141592</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -637,7 +685,7 @@
     <joint name="camera_joint" type="fixed">
       <parent>base_link</parent>
       <child>camera_link</child>
-      <pose>0.064 -0.065 0.094 0 0 0</pose>
+      <pose>0.064 0.0 0.094 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -646,7 +694,27 @@
     <joint name="camera_rgb_joint" type="fixed">
       <parent>camera_link</parent>
       <child>camera_rgb_frame</child>
-      <pose>0.005 0.018 0.013 0 0 0</pose>
+      <pose>0.0 0.0 0.0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <link name="camera_rear_link"/>
+    
+    <joint name="camera_rear_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_rear_link</child>
+      <pose>-0.190 0.0 0.094 0 0 3.141592</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+    
+    <joint name="camera_rear_rgb_joint" type="fixed">
+      <parent>camera_rear_link</parent>
+      <child>camera_rear_rgb_frame</child>
+      <pose>0.0 0.0 0.0 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>

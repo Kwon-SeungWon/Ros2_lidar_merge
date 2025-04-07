@@ -34,7 +34,9 @@ def generate_launch_description():
         default=os.path.join(
             get_package_share_directory('turtlebot3_navigation2'),
             'map',
-            'map_241115_4.yaml'))
+            # 'map_241115_4.yaml'))
+            #'map_qr_250210.yaml')
+            'ammr_250312.yaml'))
 
     param_file_name = TURTLEBOT3_MODEL + '.yaml'
     param_dir = LaunchConfiguration(
@@ -44,6 +46,9 @@ def generate_launch_description():
             'param',
             param_file_name))
 
+    # Remapping cmd_vel to nav_vel
+    remappings = LaunchConfiguration('remappings', default="[('/cmd_vel', '/nav_vel')]")
+    
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
     rviz_config_dir = os.path.join(
@@ -67,12 +72,22 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
+        DeclareLaunchArgument(
+            'remappings',
+            default_value="[('/cmd_vel', '/nav_vel')]",
+            description='List of topic remappings (e.g. [("/cmd_vel", "/nav_vel")])'
+        ),
+
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
+            PythonLaunchDescriptionSource(
+                os.path.join(nav2_launch_file_dir, 'bringup_launch.py')
+            ),
             launch_arguments={
                 'map': map_dir,
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir}.items(),
+                'params_file': param_dir,
+                'remappings': remappings
+            }.items(),
         ),
 
         Node(

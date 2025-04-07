@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<!-- ammr_plugins.xacro -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <gazebo>
+    <!-- Diff Drive Plugin -->
+    <plugin name="turtlebot3_diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <ros/>
+      <nodeName>diff_drive_node</nodeName>
+      <update_rate>60</update_rate>
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+      <wheel_separation>0.660</wheel_separation>
+      <wheel_diameter>0.18</wheel_diameter>
+      <max_wheel_torque>300</max_wheel_torque>
+      <max_wheel_acceleration>1.5</max_wheel_acceleration>
+      <command_topic>cmd_vel</command_topic>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+    </plugin>
+
+    <!-- Joint State Publisher Plugin -->
+    <plugin name="turtlebot3_joint_state" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <nodeName>joint_state_node</nodeName>
+      <update_rate>60</update_rate>
+      <joint_name>wheel_left_joint</joint_name>
+      <joint_name>wheel_right_joint</joint_name>
+    </plugin>
+
+    <!-- Front Laser Sensor Plugin -->
+    <sensor name="hls_lfcd_lds_front" type="ray">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <pose>-0.114 0 0.121 0 0 3.141592</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1.0</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>6.28</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>25.0</max>
+          <resolution>0.015</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="turtlebot3_laserscan_front" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=scan_front</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>scan_front</frame_name>
+      </plugin>
+    </sensor>
+
+    <!-- Rear Laser Sensor Plugin -->
+    <sensor name="hls_lfcd_lds_rear" type="ray">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <pose>-0.114 0 0.121 0 0 3.141592</pose>
+      <update_rate>5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1.0</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>6.28</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>25.0</max>
+          <resolution>0.015</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="turtlebot3_laserscan_rear" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=scan_rear</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>scan_rear</frame_name>
+      </plugin>
+    </sensor>
+
+    <!-- Depth Camera Plugin for Front Camera -->
+    <sensor name="depth_camera_front" type="depth">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>5</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.02974</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>10</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="depth_camera_controller_front" filename="libgazebo_ros_camera.so">
+        <nodeName>depth_camera_front_node</nodeName>
+        <camera_name>depth_front_camera</camera_name>
+        <frame_name>front_camera_depth_frame</frame_name>
+        <hack_baseline>0</hack_baseline>
+        <min_depth>0.001</min_depth>
+      </plugin>
+    </sensor>
+
+    <!-- Depth Camera Plugin for Left Camera -->
+    <sensor name="depth_camera_left" type="depth">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>5</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.02974</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>10</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="depth_camera_controller_left" filename="libgazebo_ros_camera.so">
+        <nodeName>depth_camera_left_node</nodeName>
+        <camera_name>depth_left_camera</camera_name>
+        <frame_name>left_camera_depth_frame</frame_name>
+        <hack_baseline>0</hack_baseline>
+        <min_depth>0.001</min_depth>
+      </plugin>
+    </sensor>
+
+    <!-- Depth Camera Plugin for Rear Camera -->
+    <sensor name="depth_camera_rear" type="depth">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>5</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.02974</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>10</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="depth_camera_controller_rear" filename="libgazebo_ros_camera.so">
+        <nodeName>depth_camera_rear_node</nodeName>
+        <camera_name>depth_rear_camera</camera_name>
+        <frame_name>rear_camera_depth_frame</frame_name>
+        <hack_baseline>0</hack_baseline>
+        <min_depth>0.001</min_depth>
+      </plugin>
+    </sensor>
+
+    <!-- Depth Camera Plugin for Right Camera -->
+    <sensor name="depth_camera_right" type="depth">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>5</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.02974</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>10</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="depth_camera_controller_right" filename="libgazebo_ros_camera.so">
+        <nodeName>depth_camera_right_node</nodeName>
+        <camera_name>depth_right_camera</camera_name>
+        <frame_name>right_camera_depth_frame</frame_name>
+        <hack_baseline>0</hack_baseline>
+        <min_depth>0.001</min_depth>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>

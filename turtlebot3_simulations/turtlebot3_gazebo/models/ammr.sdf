@@ -1,0 +1,505 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="ammr">
+    <pose>0 0 0 0 0 0</pose>
+    
+    <!-- base_footprint (작은 바닥판) -->
+    <link name="base_footprint">
+    </link>
+
+    <!-- base_link (로봇 차체, 박스: 1.128×0.798×0.320, mass 20kg) -->
+    <link name="base_link">
+      <visual name="base_link_visual">
+        <geometry>
+          <box>
+            <size>1.128 0.798 0.320</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+        </material>
+      </visual>
+      <collision name="base_link_collision">
+        <geometry>
+          <box>
+            <size>1.128 0.798 0.320</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>20.0</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>1.23</ixx>
+          <iyy>2.29</iyy>
+          <izz>3.18</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name="base_footprint_to_base_link" type="fixed">
+      <parent>base_footprint</parent>
+      <child>base_link</child>
+      <!-- Z 오프셋 0.09 -->
+      <pose>0 0 0.09 0 0 0</pose>
+    </joint>
+
+    <!-- 라이다 1: scan_front -->
+    <link name="scan_front">
+      <visual name="scan_front_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="scan_front_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1.0</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00146</ixx>
+          <iyy>0.00146</iyy>
+          <izz>0.00125</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="picoScan150Core-1" type="ray">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>20</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-1.5708</min_angle>
+              <max_angle>1.5708</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>30</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+      </sensor>
+    </link>
+    <!-- 수정된 scan_front 위치: base_link의 앞쪽 표면으로 돌출 -->
+    <joint name="base_link_to_scan_front" type="fixed">
+      <parent>base_link</parent>
+      <child>scan_front</child>
+      <pose>0.7 -0.315 0.216 3.14159 0 -0.7854</pose>
+    </joint>
+
+    <!-- 라이다 2: scan_rear -->
+    <link name="scan_rear">
+      <visual name="scan_rear_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="scan_rear_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1.0</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00146</ixx>
+          <iyy>0.00146</iyy>
+          <izz>0.00125</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="picoScan150Core-1" type="ray">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>20</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-1.5708</min_angle>
+              <max_angle>1.5708</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>30</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+      </sensor>
+    </link>
+    <!-- 수정된 scan_rear 위치: base_link의 뒷쪽 표면으로 돌출 -->
+    <joint name="base_link_to_scan_rear" type="fixed">
+      <parent>base_link</parent>
+      <child>scan_rear</child>
+      <pose>-0.7 0.315 0.216 3.14159 0 2.35619</pose>
+    </joint>
+
+    <!-- 카메라 Front: camera_front -->
+    <link name="camera_front">
+      <visual name="camera_front_visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="camera_front_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.5</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00083</ixx>
+          <iyy>0.00083</iyy>
+          <izz>0.00083</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="zed_x_mini" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>30</update_rate>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <!-- 수정된 camera_front 위치: base_link의 앞쪽 -->
+    <joint name="base_link_to_camera_front" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_front</child>
+      <pose>0.7 0 0.277 0 0 0</pose>
+    </joint>
+
+    <!-- 카메라 Rear: camera_rear -->
+    <link name="camera_rear">
+      <visual name="camera_rear_visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="camera_rear_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.5</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00083</ixx>
+          <iyy>0.00083</iyy>
+          <izz>0.00083</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="zed_x_mini" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>30</update_rate>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <!-- 수정된 camera_rear 위치: base_link의 뒷쪽 -->
+    <joint name="base_link_to_camera_rear" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_rear</child>
+      <pose>-0.7 0 0.277 0 0 3.14159</pose>
+    </joint>
+
+    <!-- 카메라 Right: camera_right -->
+    <link name="camera_right">
+      <visual name="camera_right_visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="camera_right_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.5</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00083</ixx>
+          <iyy>0.00083</iyy>
+          <izz>0.00083</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="zed_x_mini" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>30</update_rate>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <!-- 수정된 camera_right 위치: base_link의 오른쪽 -->
+    <joint name="base_link_to_camera_right" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_right</child>
+      <pose>0 -0.5 0.277 0 0 -1.5708</pose>
+    </joint>
+
+    <!-- 카메라 Left: camera_left -->
+    <link name="camera_left">
+      <visual name="camera_left_visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="camera_left_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.5</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00083</ixx>
+          <iyy>0.00083</iyy>
+          <izz>0.00083</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="zed_x_mini" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>30</update_rate>
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+    <!-- 수정된 camera_left 위치: base_link의 왼쪽 -->
+    <joint name="base_link_to_camera_left" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_left</child>
+      <pose>0 0.5 0.277 0 0 1.5708</pose>
+    </joint>
+
+    <!-- 휠 1: wheel_left (원통: radius 0.09, length 0.05, mass 1kg) -->
+    <link name="wheel_left">
+      <visual name="wheel_left_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="wheel_left_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1.0</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00223</ixx>
+          <iyy>0.00223</iyy>
+          <izz>0.00405</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+    <!-- 수정된 wheel_left 위치: base_link의 측면, 아래쪽 (z = -0.2) -->
+    <joint name="base_link_to_wheel_left" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_left</child>
+      <pose>0 0.33 -0.2 -1.57 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- 휠 2: wheel_right (원통: radius 0.09, length 0.05, mass 1kg) -->
+    <link name="wheel_right">
+      <visual name="wheel_right_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="wheel_right_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.09</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1.0</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00223</ixx>
+          <iyy>0.00223</iyy>
+          <izz>0.00405</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+    <!-- 수정된 wheel_right 위치: base_link의 반대측, 아래쪽 -->
+    <joint name="base_link_to_wheel_right" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_right</child>
+      <pose>0 -0.33 -0.2 -1.57 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+        </limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>

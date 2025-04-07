@@ -68,7 +68,10 @@ MapServer::MapServer(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(get_logger(), "Creating");
 
   // Declare the node parameters
-  declare_parameter("yaml_filename", rclcpp::PARAMETER_STRING);
+  rcl_interfaces::msg::ParameterDescriptor yaml_desc;
+  yaml_desc.read_only = false;  // 동적 업데이트 허용
+  declare_parameter("yaml_filename", "default_map.yaml", yaml_desc);
+
   declare_parameter("topic_name", "map");
   declare_parameter("frame_id", "map");
 }
